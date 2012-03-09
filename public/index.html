@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  </head>	
+  <body>
+  	<h3>Monitoring</h3>
+  	<a href="/monitor/downtime">DownTime</a><br/>
+  	<a href="/monitor/log">Replica Logs</a><br/>
+	
+	<h3>WS</h3>
+  	<p><a href="/replicator/api">/replicator/api</a></p>
+  	<p><a href="/replicator/wsdl">/replicator/wsdl</a></p>
+	
+  	<p><a href="/replicator/invoke">Simple Client</a></p>
+	
+	<h4>Replicator Service API</h4>
+	
+	<table border="1">
+		<tr style="font-weight:bold;"><td>function</td><td>behavior</td></tr>
+		<tr><td>Boolean SetPolicy(String srbfilepath,String policy)</td><td>return false if ( no such file | no such policy | file owner is not a unigrid user)</td></tr>
+		<tr><td>String SetCustomPolicy(String srbfilepath,String resources)</td><td>return null if no such file </td></tr>
+		<tr><td>String GetPolicy(String srbfilepath)</td><td>return null if ( no such file | file didn't set policy )</td></tr>
+		<tr><td>Boolean RemovePolicy(String srbfilepath)</td><td>return false if ( no such file | file didn't set policy )</td></tr>
+		<tr><td>String[] ListPolicy()</td><td>always return String[]</td></tr>
+		<tr><td>String[] listPolicyDesc()</td><td>always return String[]</td></tr>
+		<tr><td>String GetPolicyDesc(String policyname)</td><td>return null if no such policy</td></tr>
+	</table>
+	
+	<h4>Successful sample request with java client</h4>
+	<xmp>
+POST /replicator/api HTTP/1.0
+Content-Type: text/xml; charset=utf-8
+Accept: application/soap+xml, application/dime, multipart/related, text/*
+User-Agent: Axis/1.4
+Host: gridweb.csie.chu.edu.tw:3000
+Cache-Control: no-cache
+Pragma: no-cache
+SOAPAction: "http://gridweb.csie.chu.edu.tw:3000/replicator/api/GetPolicyDesc"
+Content-Length: 409
+
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <GetPolicyDesc soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+      <policyname xsi:type="xsd:string">High</policyname>
+    </GetPolicyDesc>
+  </soapenv:Body>
+</soapenv:Envelope>
+
+
+HTTP/1.1 200 OK
+Connection: close
+Date: Sun, 16 Sep 2007 16:24:45 GMT
+Set-Cookie: _Replicator_session_id=8624f15e40e14b78f05c1a0f09fa05cb; path=/
+Status: 200 OK
+Content-Transfer-Encoding: binary
+Cache-Control: private
+Content-Disposition: inline
+Server: Mongrel 1.0.1
+Content-Type: text/xml; charset=UTF-8
+Content-Length: 519
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <env:Body>
+    <n1:GetPolicyDescResponse xmlns:n1="unigrid.chu.replicator.api"
+        env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+      <return xsi:type="xsd:string">所有的Zone裡取所有Domain，複製2次</return>
+    </n1:GetPolicyDescResponse>
+  </env:Body>
+</env:Envelope>	
+	</xmp>
+	
+	<h4>Successful sample code with Axis SOAP Client</h4>
+	<xmp>
+
+String endpoint="http://gridweb.csie.chu.edu.tw:3000/replicator/api";
+Service service=new Service();
+Call call=(Call)service.createCall();
+call.setTargetEndpointAddress(new java.net.URL(endpoint));
+if(args[0].contentEquals("getdesc"))
+{
+	if(args.length<2)
+	{
+		System.out.println(message);
+		System.exit(255);
+	}
+	String ret="";
+	if(!dryrun)
+	{
+		call.setOperationName("GetPolicyDesc");
+		call.setUseSOAPAction(true);
+		call.setSOAPActionURI(endpoint+"/GetPolicyDesc");
+		call.addParameter("policyname",XMLType.XSD_STRING,ParameterMode.IN);
+		call.setReturnType(XMLType.XSD_STRING);
+		ret=(String)call.invoke(new Object[]{ args[1]});
+		if(ret=="") log.error("getpolicydesc failed!");
+		log.info("Description for policy "+args[1]+" :"+ret);
+	}
+}
+				
+	</xmp>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+<p>Replicator is 
+<%if @pid%>
+	<span style="color:green">started at pid <%=@pid%></span>
+<%else%>	
+	<span style="color:red">stopped</span>
+<%end%>	
+</p>
+<div style="height:30px;">
+	<div style="float:left;">每5秒更新一次</div>
+	<div id="loading" style="float:left"><%=image_tag 'ajax-loader.gif'%></div>
+	&nbsp;
+</div>
+<div style="clear:both">&nbsp;</div>
+<div id="content" style="height:400px;overflow:scroll;">
+</div>
+<script>
+	function show_loading(){
+		$('loading').show();
+	}
+	function hide_loading(){
+		new Effect.Fade($('loading'));
+	}
+	new Ajax.Updater('content','/monitor/a_log',{onCreate:show_loading,onSuccess:hide_loading});
+	setInterval("new Ajax.Updater('content','/monitor/a_log',{onCreate:show_loading,onSuccess:hide_loading});",5000);
+</script>
+
+

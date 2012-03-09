@@ -1,0 +1,19 @@
+<table width="100%" style="border-collapse:collapse">
+	<tr style='font-weight:bold'>
+		<td>Resource</td><td>Zone</td><td>Domain</td>
+		<td>累積離線次數</td><td>上次偵測狀態</td><td>最後更新</td>
+	</tr>
+	<%i=0%>
+	<%@zones.each do |z|%>
+	<%z.domains.each do |d|%>
+	<%d.resources.each do |r|%>
+	<tr style="<%=(i%2==0) ? 'background-color:#f7f7f7' : ''%>">
+		<td><%=r.name%></td><td><%=r.domain.zone.name%></td><td><%=r.domain.name%></td><td><%=r.downtime%></td>
+		<td><%=(r.online)? "<span style='color:green'>正常</span>" : "<span style='color:red'>離線</span>"%></td>
+		<td><%=r.updated_at.strftime "%Y/%m/%d %H:%M:%S"%></td>
+	</tr>
+	<%i+=1%>
+	<%end%>
+	<%end%>
+	<%end%>		
+</table>

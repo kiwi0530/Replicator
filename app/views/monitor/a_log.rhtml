@@ -1,0 +1,24 @@
+<table  width="98%" align="center" border="1" style="border-collapse:collapse;margin:10px auto;">
+	<tr style="font-weight:bold">
+		<td>ID</td>
+		<td>檔案</td>		
+		<td>User</td>		
+		<td>Resource</td>		
+		<td>動作</td>		
+		<td>是否成功</td>		
+		<td>建立時間</td>														
+	</tr>
+	<%i=0%>
+	<%@logs.each do |log|%>
+	<tr style="<%=(i%2==0) ? 'background-color:#f7f7f7' : ''%>">
+		<td><%=log.id%></td>
+		<td><%=log.file.path+"/"+log.file.name%></td>
+		<td><%=log.file.user.username%></td>		
+		<td><%=log.resource%></td>
+		<td><%=log.action%></td>
+		<td><%=log.success ? "<span style='color:green'>成功</span>" : "<span style='color:red'>失敗</span>" %></td>		
+		<td><%=log.created_at.strftime "%Y/%m/%d %H:%m:%S" %></td>		
+	</tr>
+	<%i=i+1%>
+	<%end%>
+</table>

@@ -1,0 +1,72 @@
+#! /bin/sh
+
+# chkconfig: 2345 85 15
+# description: Unigrid Auto Replication Daemon
+# processname: ruby
+
+########################################
+#option JAVA_HOME (required)
+# Set java envirement path
+export JAVA_HOME=/usr/java/jdk1.6.0
+
+#option DRYRUN
+# Set to "true" so replicator will not really replicate files
+# Default: "false"
+
+########################################
+
+
+# Source function library
+. /etc/rc.d/init.d/functions
+MASTER_NAME="replicator"
+BASE=/opt/replicator
+EXEC=/usr/bin/mongrel_rails
+if [[ -z $JAVA_HOME ]]; then
+echo "Enviroment JAVA_HOME not set !"
+exit 255
+fi
+ 
+if [[ $DRYRUN = "true" ]]; then
+ARGDRYRUN="-Ddryrun"
+fi
+
+    RETVAL=0
+    
+    
+    case "$1" in
+	start)
+	    echo -n $"Starting $MASTER_NAME: "
+		cd $BASE
+		source /etc/bashrc
+		$EXEC start -d -p 3000  -c $BASE
+		ruby $BASE/bin/sync.rb 2>&1 1>$BASE/log/sync.log </dev/null &
+		ruby $BASE/bin/replicator.rb 2>&1 1>$BASE/log/replicator.log </dev/null &
+		echo $! > $BASE/log/$MASTER_NAME.pid
+		echo_success
+		echo
+	    exit 0
+	    ;;
+	stop)
+	    echo -n $"Shutting down $MASTER_NAME: "
+	    #killproc $MASTER
+		cd $BASE
+		$EXEC stop
+		kill -9 `cat "$BASE/log/$MASTER_NAME.pid"`
+		rm -f $BASE/log/$MASTER_NAME.pid
+		echo_success
+	    echo
+	    ;;
+	restart)
+		$0 stop
+		$0 start
+	    ;;
+	status)
+	    status $EXEC
+	    ;;
+	*)
+	    echo $"Usage: $0 {start|stop|restart|status}"
+	    RETVAL=1
+    esac
+    
+    exit $RETVAL
+
